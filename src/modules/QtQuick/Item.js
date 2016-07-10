@@ -95,29 +95,7 @@ registerQmlType({
     this.implicitWidthChanged.connect(this, updateHGeometry);
     this.implicitHeightChanged.connect(this, updateVGeometry);
 
-    this.setupFocusOnDom = (function(element) {
-      var updateFocus = (function() {
-        var hasFocus = document.activeElement == this.dom || document.activeElement == this.dom.firstChild;
-
-        if (this.focus != hasFocus)
-          this.focus = hasFocus;
-      }).bind(this);
-      element.addEventListener("focus", updateFocus);
-      element.addEventListener("blur",  updateFocus);
-    }).bind(this);
-
-    this.focusChanged.connect(this, (function(newVal) {
-      if (newVal == true) {
-        if (this.dom.firstChild != null)
-          this.dom.firstChild.focus();
-        document.qmlFocus = this;
-        this.$context.activeFocus = this;
-      } else if (document.qmlFocus == this) {
-        document.getElementsByTagName("BODY")[0].focus();
-        document.qmlFocus = engine.rootContext().base;
-        this.$context.activeFocus = null;
-      }
-    }).bind(this));
+    this.focusChanged.connect(this, this.onFocusChanged);
 
     this.$isUsingImplicitWidth = true;
     this.$isUsingImplicitHeight = true;
@@ -275,40 +253,6 @@ registerQmlType({
             transition.$start(actions);
     });
 
-    var QMLRotation  = getConstructor('QtQuick', '2.0', 'Rotation');
-    var QMLScale     = getConstructor('QtQuick', '2.0', 'Scale');
-    var QMLTranslate = getConstructor('QtQuick', '2.0', 'Translate');
-
-    this.$updateTransform = function() {
-            var transform = "rotate(" + this.rotation + "deg) scale(" + this.scale + ")";
-            var filter = "";
-            var transformStyle = "preserve-3d";
-
-            for (var i = 0; i < this.transform.length; i++) {
-                var t = this.transform[i];
-                if (t instanceof QMLRotation)
-                    transform += " rotate3d(" + t.axis.x + ", " + t.axis.y + ", " + t.axis.z + ", " + t.angle + "deg)";
-                else if (t instanceof QMLScale)
-                    transform += " scale(" + t.xScale + ", " + t.yScale + ")";
-                else if (t instanceof QMLTranslate)
-                    transform += " translate(" + t.x + "px, " + t.y + "px)";
-                else if (typeof t.transformType != 'undefined') {
-                    if (t.transformType == 'filter')
-                      filter += t.operation + '(' + t.parameters + ') ';
-                }
-                else if (typeof t == 'string')
-                    transform += t;
-            }
-            if (typeof this.z == "number")
-              transform += " translate3d(0, 0, " + this.z + "px)";
-            this.dom.style.transform = transform;
-            this.dom.style.transformStyle = transformStyle;
-            this.dom.style.webkitTransform = transform; // Chrome, Safari and Opera
-            this.dom.style.webkitTransformStyle = transformStyle;
-            this.dom.style.msTransform = transform;     // IE
-            this.dom.style.filter = filter;
-            this.dom.style.webkitFilter = filter; // Chrome, Safari and Opera
-    }
     this.rotationChanged.connect(this, this.$updateTransform);
     this.scaleChanged.connect(this, this.$updateTransform);
     this.transformChanged.connect(this, this.$updateTransform);
@@ -334,7 +278,7 @@ registerQmlType({
         this.css.height = newVal ? newVal + "px" : "auto";
     });
 
-    this.Component.completed.connect(this, this.$calculateOpacity);
+    this.Component.completed.connect(this, this.Component$onCompleted);
     this.opacityChanged.connect(this, this.$calculateOpacity);
     if (this.$parent) {
       this.$parent.$opacityChanged.connect(this, this.$calculateOpacity);
@@ -374,6 +318,68 @@ registerQmlType({
             this.dom.updateQmlGeometry();
         }
     }
+  }
+  onFocusChanged(newVal) {
+    if (newVal) {
+      if (this.dom.firstChild != null) {
+        this.dom.firstChild.focus();
+      }
+      document.qmlFocus = this;
+      this.$context.activeFocus = this;
+    } else if (document.qmlFocus === this) {
+      document.getElementsByTagName("BODY")[0].focus();
+      document.qmlFocus = engine.rootContext().base;
+      this.$context.activeFocus = null;
+    }
+  }
+  setupFocusOnDom(element) {
+    const updateFocus = () => {
+      const hasFocus = document.activeElement === this.dom ||
+                       document.activeElement === this.dom.firstChild;
+      if (this.focus !== hasFocus) {
+        this.focus = hasFocus;
+      }
+    };
+    element.addEventListener("focus", updateFocus);
+    element.addEventListener("blur", updateFocus);
+  }
+  $updateTransform() {
+    const QMLTranslate = getConstructor('QtQuick', '2.0', 'Translate');
+    const QMLRotation  = getConstructor('QtQuick', '2.0', 'Rotation');
+    const QMLScale = getConstructor('QtQuick', '2.0', 'Scale');
+    let transform = "rotate(" + this.rotation + "deg) scale(" + this.scale + ")";
+    let filter = "";
+    let transformStyle = "preserve-3d";
+
+    for (let i = 0; i < this.transform.length; i++) {
+      const t = this.transform[i];
+      if (t instanceof QMLRotation) {
+        transform += " rotate3d(" + t.axis.x + ", " + t.axis.y + ", " + t.axis.z + ", " + t.angle + "deg)";
+      } else if (t instanceof QMLScale) {
+        transform += " scale(" + t.xScale + ", " + t.yScale + ")";
+      } else if (t instanceof QMLTranslate) {
+        transform += " translate(" + t.x + "px, " + t.y + "px)";
+      } else if (typeof t.transformType != 'undefined') {
+        if (t.transformType == 'filter') {
+          filter += t.operation + '(' + t.parameters + ') ';
+        }
+      } else if (typeof t == 'string') {
+        transform += t;
+      }
+    }
+    if (typeof this.z == "number") {
+      transform += " translate3d(0, 0, " + this.z + "px)";
+    }
+    this.dom.style.transform = transform;
+    this.dom.style.transformStyle = transformStyle;
+    this.dom.style.webkitTransform = transform; // Chrome, Safari and Opera
+    this.dom.style.webkitTransformStyle = transformStyle;
+    this.dom.style.msTransform = transform;     // IE
+    this.dom.style.filter = filter;
+    this.dom.style.webkitFilter = filter; // Chrome, Safari and Opera
+  }
+  Component$onCompleted() {
+    this.$calculateOpacity();
   }
   $calculateOpacity() {
   // TODO: reset all opacity on layer.enabled changed

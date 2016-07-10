@@ -1,6 +1,6 @@
 registerQmlType({
-  module:   'QtQuick',
-  name:     'BorderImage',
+  module: "QtQuick",
+  name: "BorderImage",
   versions: /.*/,
   baseClass: "Item",
   enums: {
@@ -18,7 +18,6 @@ registerQmlType({
 }, class {
   constructor(meta) {
     callSuper(this, meta);
-    var self = this;
 
     this.border = new QObject(this);
     createProperty("int", this.border, "left");
@@ -26,17 +25,18 @@ registerQmlType({
     createProperty("int", this.border, "top");
     createProperty("int", this.border, "bottom");
 
-    this.sourceChanged.connect(this, function() {
-        this.dom.style.borderImageSource = "url(" + engine.$resolvePath(this.source) + ")";
-    });
-    this.border.leftChanged.connect(this, updateBorder);
-    this.border.rightChanged.connect(this, updateBorder);
-    this.border.topChanged.connect(this, updateBorder);
-    this.border.bottomChanged.connect(this, updateBorder);
-    this.horizontalTileModeChanged.connect(this, updateBorder);
-    this.verticalTileModeChanged.connect(this, updateBorder);
-
-    function updateBorder() {
+    this.sourceChanged.connect(this, this.onSourceChanged);
+    this.border.leftChanged.connect(this, this.$updateBorder);
+    this.border.rightChanged.connect(this, this.$updateBorder);
+    this.border.topChanged.connect(this, this.$updateBorder);
+    this.border.bottomChanged.connect(this, this.$updateBorder);
+    this.horizontalTileModeChanged.connect(this, this.$updateBorder);
+    this.verticalTileModeChanged.connect(this, this.$updateBorder);
+  }
+  onSourceChanged() {
+    this.dom.style.borderImageSource = "url(" + engine.$resolvePath(this.source) + ")";
+  }
+  $updateBorder() {
         this.dom.style.OBorderImageSource = "url(" + engine.$resolvePath(this.source) + ")";
         this.dom.style.OBorderImageSlice = this.border.top + " "
                                                 + this.border.right + " "
@@ -62,5 +62,4 @@ registerQmlType({
                                                 + this.border.bottom + "px "
                                                 + this.border.left + "px";
     }
-  }
 });
