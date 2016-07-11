@@ -25,7 +25,6 @@ registerQmlType({
     createProperty("int", this.border, "top");
     createProperty("int", this.border, "bottom");
 
-    this.sourceChanged.connect(this, this.onSourceChanged);
     this.border.leftChanged.connect(this, this.$updateBorder);
     this.border.rightChanged.connect(this, this.$updateBorder);
     this.border.topChanged.connect(this, this.$updateBorder);

@@ -42,14 +42,6 @@ registerQmlType({
     this.setupFocusOnDom(input);
     input.disabled = false;
 
-    this.Component.completed.connect(this, this.Component$onCompleted);
-    this.textChanged.connect(this, this.onTextChanged);
-    this.echoModeChanged.connect(this, this.onEchoModeChanged);
-    this.maximumLengthChanged.connect(this, this.onMaximumLengthChanged);
-    this.readOnlyChanged.connect(this, this.onReadOnlyChanged);
-
-    this.Keys.pressed.connect(this, this.$submitValue);
-
     input.oninput = () => this.$updateValue();
     input.onpropertychanged = () => this.$updateValue();
   }
@@ -82,7 +74,7 @@ registerQmlType({
     }
     return true;
   }
-  $submitValue(e) {
+  Keys$onPressed(e) {
     const is_submit = e.key === Qt.Key_Return || e.key === Qt.Key_Enter;
     if (is_submit && this.$testValidator()) {
       this.accepted();

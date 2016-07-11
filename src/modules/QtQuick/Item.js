@@ -95,8 +95,6 @@ registerQmlType({
     this.implicitWidthChanged.connect(this, updateHGeometry);
     this.implicitHeightChanged.connect(this, updateVGeometry);
 
-    this.focusChanged.connect(this, this.onFocusChanged);
-
     this.$isUsingImplicitWidth = true;
     this.$isUsingImplicitHeight = true;
 
@@ -278,7 +276,6 @@ registerQmlType({
         this.css.height = newVal ? newVal + "px" : "auto";
     });
 
-    this.Component.completed.connect(this, this.Component$onCompleted);
     this.opacityChanged.connect(this, this.$calculateOpacity);
     if (this.$parent) {
       this.$parent.$opacityChanged.connect(this, this.$calculateOpacity);

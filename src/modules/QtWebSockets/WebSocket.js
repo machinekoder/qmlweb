@@ -24,15 +24,17 @@ registerQmlType({
 
     this.$socket = undefined;
     this.$reconnect = false;
-
-    this.statusChanged.connect(this, this.onStatusChanged);
-    this.activeChanged.connect(this, this.$reconnectSocket);
-    this.urlChanged.connect(this, this.$reconnectSocket);
   }
   onStatusChanged(status) {
     if (status !== this.WebSocket.Error) {
       this.errorString = "";
     }
+  }
+  onActiveChanged() {
+    this.$reconnectSocket();
+  }
+  onUrlChanged() {
+    this.$reconnectSocket();
   }
   $connectSocket() {
     this.$reconnect = false;

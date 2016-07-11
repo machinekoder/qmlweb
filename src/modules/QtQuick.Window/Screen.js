@@ -18,9 +18,7 @@ registerQmlType({
 }, class {
   constructor(meta) {
     callSuper(this, meta);
-
     // TODO: rewrite as an attached object and forbid constructing
-    this.Component.completed.connect(this, this.Component$onCompleted);
   }
   Component$onCompleted() {
     this.desktopAvailableHeight = window.outerHeight;

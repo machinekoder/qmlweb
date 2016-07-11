@@ -21,17 +21,6 @@ registerQmlType({
     this.css.pointerEvents = "auto";
     this.setupFocusOnDom(this.dom);
 
-    this.contentItemChanged.connect(this, this.onContentItemChanged);
-    this.flickableItemChanged.connect(this, this.onFlickableItemChanged);
-    this.viewportChanged.connect(this, this.onViewportChanged);
-    this.frameVisibleChanged.connect(this, this.onVisibleChanged);
-    this.highlightOnFocusChanged.connect(this, this.onHighlightOnFocusChanged);
-    this.horizontalScrollBarPolicyChanged.connect(this, this.onHorizontalScrollBarPolicyChanged);
-    this.verticalScrollBarPolicyChanged.connect(this, this.onVerticalScrollBarPolicyChanged);
-    this.styleChanged.connect(this, this.onStyleChanged);
-    this.childrenChanged.connect(this, this.onChildrenChanged);
-    this.focusChanged.connect(this, this.onFocusChanged);
-
     this.width = this.implicitWidth = 240; // default QML ScrollView width
     this.height = this.implicitHeight = 150; // default QML ScrollView height
     this.width = this.implicitWidth;

@@ -11,9 +11,6 @@ registerQmlType({
 }, class {
   constructor(meta) {
     callSuper(this, meta);
-
-    this.animationChanged.connect(this, this.onAnimationChanged);
-    this.enabledChanged.connect(this, this.onEnabledChanged);
   }
   onAnimationChanged(newVal) {
     newVal.target = this.$parent;
