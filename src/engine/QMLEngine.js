@@ -467,15 +467,15 @@ class QMLEngine {
         property.update();
       } else if (geometryProperties.indexOf(property.name) >= 0) {
         // It is possible that bindings with these names was already evaluated
-        // during eval of other bindings but in that case updateHGeometry and
-        // updateVGeometry could be blocked during their eval.
+        // during eval of other bindings but in that case $updateHGeometry and
+        // $updateVGeometry could be blocked during their eval.
         // So we call them explicitly, just in case.
-
-        if (property.changed.isConnected(property.obj, updateHGeometry)) {
-          updateHGeometry.apply(property.obj, [property.val, property.val, property.name]);
+        const { obj, changed } = property;
+        if (obj.$updateHGeometry && changed.isConnected(obj, obj.$updateHGeometry)) {
+          obj.$updateHGeometry(property.val, property.val, property.name);
         }
-        if (property.changed.isConnected(property.obj, updateVGeometry)) {
-          updateVGeometry.apply(property.obj, [property.val, property.val, property.name]);
+        if (obj.$updateVGeometry && changed.isConnected(obj, obj.$updateVGeometry)) {
+          obj.$updateVGeometry(property.val, property.val, property.name);
         }
       }
     }
