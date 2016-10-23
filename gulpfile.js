@@ -19,6 +19,8 @@ const qtcoreSources = [
   "src/modules/QtQml/Qt.js",
   "src/engine/QML*.js",
   "src/engine/*.js",
+  "src/modules/Machinekit.HalRemote/remotecomponentbase.js",
+  "src/modules/Machinekit.HalRemote/remotecomponent.js",
   "src/modules/**/*.js"
 ];
 
