@@ -14,7 +14,7 @@ class RemoteComponent extends RemoteComponentBase {
     this.pins = pins;
     this.pinsByName = {};
     for (let i = 0; i < pins.length; ++i) {
-      let pin = pins[i];
+      const pin = pins[i];
       this.pinsByName[pin.name] = pin;
       pin.valueUpdated.connect(this, this.pinChange);
     }
@@ -37,7 +37,7 @@ class RemoteComponent extends RemoteComponentBase {
   }
 
   unsyncPins() {
-    for (pin of this.keys) {
+    for (const pin of this.keys) {
       pin.synced = false;
     }
   }
@@ -67,12 +67,12 @@ class RemoteComponent extends RemoteComponentBase {
     this.connected = false;
   }
 
-  pinChange(pin, value) {
+  pinChange(pin) {
     if (!this.connected) {
       return;
     }
 
-    if (pin.direction == HalPinDirection.HAL_IN) {
+    if (pin.direction === HalPinDirection.HAL_IN) {
       return; // update only Output or IO pins
     }
 
@@ -83,58 +83,59 @@ class RemoteComponent extends RemoteComponentBase {
     // Each Pin message MUST carry the type field
     // Each Pin message MUST - depending on pin type - carry a halbit,
     // halfloat, hals32, or halu32 field.
-    let halPin = new HalPin();
+    const halPin = new HalPin();
     halPin.handle = pin.handle;
     halPin.type = pin.type;
-    if (pin.type == HalPinType.HAL_FLOAT) {
+    if (pin.type === HalPinType.HAL_FLOAT) {
       halPin.halfloat = pin.value;
     }
-    else if (pin.type == HalPinType.HAL_BIT) {
+    else if (pin.type === HalPinType.HAL_BIT) {
       halPin.halbit = pin.value;
     }
-    else if (pin.type == HalPinType.HAL_S32) {
+    else if (pin.type === HalPinType.HAL_S32) {
       halPin.hals32 = pin.value;
     }
-    else if (pin.type == HalPinType.HAL_U32) {
+    else if (pin.type === HalPinType.HAL_U32) {
       halPin.halu32 = pin.value;
     }
     else {
       console.debug("wrong pin type");
       return;
     }
-    this.halrcmdTx.pin.push(halPin);
-    this.sendHalrcmdMessage(ContainerType.MT_HALRCOMP_SET, this.halrcmdTx);
+    const tx = new Container();
+    tx.pin.push(halPin);
+    this.sendHalrcmdMessage(ContainerType.MT_HALRCOMP_SET, tx);
   }
 
   pinUpdate(rpin, lpin) {
     if (rpin.halfloat !== null) {
-        lpin.setValue(rpin.halfloat, true);
+      lpin.setValue(rpin.halfloat, true);
     }
     else if (rpin.halbit !== null) {
-        lpin.setValue(rpin.halbit, true);
+      lpin.setValue(rpin.halbit, true);
     }
     else if (rpin.hals32 !== null) {
-        lpin.setValue(rpin.hals32, true);
+      lpin.setValue(rpin.hals32, true);
     }
     else if (rpin.halu32 !== null) {
-        lpin.setValue(rpin.halu32, true);
+      lpin.setValue(rpin.halu32, true);
     }
   }
 
   halrcompFullUpdateReceived(msg) {
-    const topic = msg[0];
+    //const topic = msg[0];
     const rx = msg[1];
 
-    let comp = rx.comp[0];
+    const comp = rx.comp[0];
     for (let i = 0; i < comp.pin.length; ++i) {
-        let rpin = comp.pin[i];
-      let name = rpin.name.split(".")[1];
+      const rpin = comp.pin[i];
+      const name = rpin.name.split(".")[1];
       let lpin = this.pinsByName[name];
-      if (lpin === undefined) {  // new pin
-        lpin = {type: rpin.type,
-                direction: rpin.dir,
-                synced: false,
-                parent: this};
+      if (lpin === undefined) { // new pin
+        lpin = { type: rpin.type,
+                 direction: rpin.dir,
+                 synced: false,
+                 parent: this };
         this.pinsByName[name] = lpin;
       }
       lpin.handle = rpin.handle;
@@ -144,16 +145,17 @@ class RemoteComponent extends RemoteComponentBase {
   }
 
   halrcompIncrementalUpdateReceived(msg) {
-    const topic = msg[0];
+    //const topic = msg[0];
     const rx = msg[1];
 
     for (let i = 0; i < rx.pin.length; ++i) {
-      let rpin = rx.pin[i];
+      const rpin = rx.pin[i];
       this.pinUpdate(rpin, this.pinsByHandle[rpin.handle]);
     }
   }
 
   halrcompErrorReceived(msg) {
-    console.log("received an error");
+    const rx = msg[1];
+    console.log(`received an error: ${msg.note}`);
   }
 }

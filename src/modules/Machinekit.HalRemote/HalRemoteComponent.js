@@ -17,7 +17,7 @@ QmlWeb.registerQmlType({
     connectionState: { type: "enum", initialValue: 0 }, // Disconnected
     connectionError: { type: "enum", initialValue: 0 }, // NoError
     errorString: { type: "string", initialValue: "" },
-    containerItem: { type: "QtQml.Item", initialValue: this },
+    containerItem: { type: "QtQml.Item", initialValue: null },
     create: { type: "bool", initialValue: true },
     bind: { type: "bool", initialValue: true },
     pins: { type: "var", initialValue: [] },
@@ -29,13 +29,13 @@ QmlWeb.registerQmlType({
     QmlWeb.callSuper(this, meta);
 
     this.$rcomp = new RemoteComponent("anddemo", 0);
-    this.$rcomp.bind("addPins", () => this.$addPins() );
-    this.$rcomp.bind("removePins", () => this.$removePins() );
-    this.$rcomp.bind("setConnected", () => this.$setState(2) );
-    this.$rcomp.bind("setConnecting", () => this.$setState(1) );
-    this.$rcomp.bind("setDisconnected", () => this.$setState(0) );
-    this.$rcomp.bind("setTimeout", () => this.$setState(3) );
-    this.$rcomp.bind("setError", () => this.$setState(4) );
+    this.$rcomp.bind("addPins", () => this.$addPins());
+    this.$rcomp.bind("removePins", () => this.$removePins());
+    this.$rcomp.bind("setConnected", () => this.$setState(2));
+    this.$rcomp.bind("setConnecting", () => this.$setState(1));
+    this.$rcomp.bind("setDisconnected", () => this.$setState(0));
+    this.$rcomp.bind("setTimeout", () => this.$setState(3));
+    this.$rcomp.bind("setError", () => this.$setState(4));
 
     this.readyChanged.connect(this, this.$onReadyChanged);
   }
@@ -43,7 +43,7 @@ QmlWeb.registerQmlType({
   $recurseItem(item, list) {
     for (let i = 0; i < item.data.length; ++i)
     {
-      let entry = item.data[i];
+      const entry = item.data[i];
       if (entry.$class === "HalPin") {
         list.push(entry);
       }
@@ -55,7 +55,7 @@ QmlWeb.registerQmlType({
 
   $setState(state) {
     this.connectionState = state;
-    this.connected = (state === 2); // Connected
+    this.connected = state === 2; // Connected
   }
 
   $addPins() {

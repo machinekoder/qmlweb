@@ -24,7 +24,8 @@ QmlWeb.registerQmlType({
     synced: { type: "bool", initialValue: false }
   },
   signals: {
-    valueUpdated: [{ type: "variant", name: "value" }, { type: "variant", name: "pin" }]
+    valueUpdated: [{ type: "variant", name: "value" },
+                   { type: "variant", name: "pin" }]
   }
 
 }, class {
@@ -38,20 +39,21 @@ QmlWeb.registerQmlType({
   }
 
   setValue(value, synced) {
+    let sync = synced;
     this.$valueUpdating = true;
     if (this.value !== value) {
       this.value = value;
     }
 
-    if (synced == true) {
+    if (sync === true) {
       this.$syncValue = value; // save the sync point
     }
     else if (value === this.$syncValue) {
-      synced = true; // if value is same as sync point, synced is always true
+      sync = true; // if value is same as sync point, synced is always true
     }
 
-    if (this.synced !== synced) {
-      this.synced = synced;
+    if (this.synced !== sync) {
+      this.synced = sync;
     }
     this.$valueUpdating = false;
   }

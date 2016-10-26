@@ -24,7 +24,7 @@ QmlWeb.registerQmlType({
   }
 
   itemsUpdated() {
-    if (this.items.length == 0)
+    if (this.items.length === 0)
     {
       this.uri = "";
       this.uuid = "";
