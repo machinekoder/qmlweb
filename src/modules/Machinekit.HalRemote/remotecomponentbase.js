@@ -39,9 +39,10 @@ class RemoteComponentBase {
       { name: "halrcmd_trying", from: "binding", to: "trying" },
       { name: "disconnect", from: "binding", to: "down" },
       { name: "halrcmd_trying", from: "syncing", to: "trying" },
-      { name: "halrcomp_up", from: "syncing", to: "synced" },
+      { name: "halrcomp_up", from: "syncing", to: "sync" },
       { name: "sync_failed", from: "syncing", to: "error" },
       { name: "disconnect", from: "syncing", to: "down" },
+      { name: "pins_synced", from: "sync", to: "synced" },
       { name: "halrcomp_trying", from: "synced", to: "syncing" },
       { name: "halrcmd_trying", from: "synced", to: "trying" },
       { name: "set_rejected", from: "synced", to: "error" },
@@ -68,6 +69,8 @@ class RemoteComponentBase {
     this.fsm.onsyncing = () => this.onFsmSyncing();
     this.fsm.onhalrcomp_up = () => this.onFsmHalrcompUp();
     this.fsm.onsync_failed = () => this.onFsmSyncFailed();
+    this.fsm.onsync = () => this.onFsmSync();
+    this.fsm.onpins_synced = () => this.onFsmPinsSynced();
     this.fsm.onsynced = () => this.onFsmSynced();
     this.fsm.onhalrcomp_trying = () => this.onFsmHalrcompTrying();
     this.fsm.onset_rejected = () => this.onFsmSetRejected();
@@ -202,6 +205,20 @@ class RemoteComponentBase {
     this.stopHalrcmdChannel();
   }
 
+  onFsmSync() { // unused params: event, from, to
+    if (this.debuglevel > 0) {
+      console.log(`${this.debugname}: state SYNC`);
+    }
+
+    this.trigger("stateChanged", "sync");
+  }
+
+  onFsmPinsSynced() { // unused params: event, from, to
+    if (this.debuglevel > 0) {
+      console.log(`${this.debugname}: event PINS SYNCED`);
+    }
+  }
+
   onFsmSynced() { // unused params: event, from, to
     if (this.debuglevel > 0) {
       console.log(`${this.debugname}: state SYNCED`);
@@ -293,6 +310,12 @@ class RemoteComponentBase {
   noBind() {
     if (this.fsm.current === "bind") {
       this.fsm.no_bind();
+    }
+  }
+
+  pinsSynced() {
+    if (this.fsm.current === "sync") {
+      this.fsm.pins_synced();
     }
   }
 

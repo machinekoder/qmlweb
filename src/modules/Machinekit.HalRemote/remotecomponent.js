@@ -131,7 +131,7 @@ class RemoteComponent extends RemoteComponentBase {
       const rpin = comp.pin[i];
       const name = rpin.name.split(".")[1];
       let lpin = this.pinsByName[name];
-      if (lpin === undefined) { // new pin
+      if (lpin === undefined) { // new pin - TODO: create HalPin
         lpin = { type: rpin.type,
                  direction: rpin.dir,
                  synced: false,
@@ -142,6 +142,8 @@ class RemoteComponent extends RemoteComponentBase {
       this.pinsByHandle[rpin.handle] = lpin; // create reference
       this.pinUpdate(rpin, lpin);
     }
+
+    this.pinsSynced(); // mark pins as synced
   }
 
   halrcompIncrementalUpdateReceived(msg) {
